@@ -2,33 +2,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "inst.h"
-
 int main(void) {
-    REGISTER_TYPE* a;
-    REGISTER_TYPE* b;
-    REGISTER_TYPE* c;
-
-    REGISTER_TYPE* buffer = malloc(sizeof(REGISTER_TYPE) * 3);
-
-    if (!buffer) {
+    uint8_t* registers = malloc(sizeof(uint8_t) * 3); // 0th immediate, 1st 2nd are a b
+    if (!registers) {
+        fprintf(stderr, "Failed to allocate for registers\n");
         return -1;
     }
 
-    a = &(buffer[0]);
-    b = &(buffer[1]);
-    c = &(buffer[2]);
+    // set instruction
+    uint8_t value = 10;
+    int register_to_set = 1; // register a
 
-    SET(10);
-    STO(a);
+    registers[0] = value;
+    registers[register_to_set] = registers[0];
 
-    SET(50);
-    STO(b);
+    // load instruction
+    int register_to_load = 1; // register b
 
-    printf("a   b   c\n");
-    printf("%d  %d  %d\n", *a, *b, *c);
+    registers[0] = registers[register_to_load];
 
-    free(buffer);
+    // store instruction
+    int register_to_store_into = 2; // register b
+
+    registers[register_to_store_into] = registers[0];
+
+    // another set instruction
+    value = 15;
+    register_to_set = 1;
+
+    registers[0] = value;
+    registers[register_to_set] = registers[0];
+
+    // halt instruction
+    printf("Register contents:\n");
+    printf("---------\n");
+    printf("|a  |b  |\n");
+    printf("---------\n");
+    printf("|%d |%d |\n", registers[1], registers[2]);
+    printf("---------\n");
 
     return 0;
 }
