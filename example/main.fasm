@@ -1,0 +1,33 @@
+; this is a comment
+; there are no multiline comments
+; comments may come after expressions
+; never use the tab character, the parser WILL break
+
+DMP         ; dumps all register contents to stdout
+
+SET 15      ; tells the state machine to hold value 15
+STO $a      ; takes held value and save into register a
+
+SET 10
+STO $b
+
+SET 5
+STO $c
+
+SET 20
+STO $d
+
+SET 25
+STO $e
+
+DMP         ; confirm register contents here
+
+ADD $a $c   ; adds content of both registers to held value
+STO $f      ; stores the result of the previous operation into register f
+
+DMP         ; confirm addition operation
+
+SUB $b $d   ; subtract content of both registers, respects order given
+STO $g      ; store result of subtraction into register g
+
+DMP         ; confirm subtraction operation
