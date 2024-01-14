@@ -1,35 +1,30 @@
+# Compiler + build flags
 CC := gcc
 CFLAGS := -Wall -Wextra
 
+# Paths for binaries, object files, and source files
 BIN_PATH := bin
 OBJ_PATH := obj
-REL_PATH := ${OBJ_PATH}/rel
-DBG_PATH := ${OBJ_PATH}/dbg
 SRC_PATH := src
 
+# Final binary path
 TARGET := ${BIN_PATH}/fasm
 
-SRC_FILES := $(wildcard ${SRC_PATH}/*.c)
-REL_FILES := $(addprefix ${REL_PATH}/, $(notdir ${SRC_FILES:.c=.o}))
-DBG_FILES := $(addprefix ${DBG_PATH}/, $(notdir ${SRC_FILES:.c=.o}))
+# https://stackoverflow.com/a/18258352
+rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-.PHONY: all clean release
+SRC_FILES := $(call rwildcard, ${SRC_PATH}, *.c)
+OBJ_FILES := $(patsubst ${SRC_PATH}/%.c, ${OBJ_PATH}/%.o, ${SRC_FILES})
 
-all: ${DBG_FILES}
-	@mkdir -p ${BIN_PATH}
-	@${CC} ${CFLAGS} -g -o ${TARGET} ${DBG_FILES}
+.PHONY: all clean
+
+all: ${OBJ_FILES}
+	@mkdir -p $(dir ${TARGET})
+	@${CC} ${CFLAGS} -o ${TARGET} ${OBJ_FILES}
 
 clean:
 	@rm -rf ${BIN_PATH} ${OBJ_PATH}
 
-release: ${REL_FILES}
-	@mkdir -p ${BIN_PATH}
-	@${CC} ${CFLAGS} -O3 -s -o ${TARGET}-release ${REL_FILES}
-
-${REL_PATH}/%.o: ${SRC_PATH}/%.c
-	@mkdir -p ${REL_PATH}
-	@${CC} ${CFLAGS} -O3 -s -c -o $@ $<
-
-${DBG_PATH}/%.o: ${SRC_PATH}/%.c
-	@mkdir -p ${DBG_PATH}
-	@${CC} ${CFLAGS} -g -c -o $@ $<
+${OBJ_FILES}: ${OBJ_PATH}/%.o : ${SRC_PATH}/%.c
+	@mkdir -p $(dir $@)
+	@${CC} ${CFLAGS} -c -o $@ $<
